@@ -69,37 +69,75 @@
 
 /* Swiper özelleştirmeleri */
 .portfolio-swiper {
-  padding: 50px 0;
+  padding: 50px 20px;
+  margin: 0 -20px;
 }
 
-.portfolio-swiper .swiper-slide {
+@media (min-width: 640px) {
+  .portfolio-swiper {
+    padding: 50px 40px;
+    margin: 0;
+  }
+}
+
+.swiper-slide-custom {
+  height: auto;
   transition: all 0.3s ease;
   opacity: 0.4;
+  width: 100%;
+  max-width: 600px; /* Card maksimum genişliği */
+  margin: 0 auto;
 }
 
+.swiper-slide-custom .card {
+  height: 100%;
+  width: 100%;
+}
+
+/* Aktif slide için özel efektler */
 .portfolio-swiper .swiper-slide-active {
   opacity: 1;
-  transform: scale(1.1);
+  transform: scale(1.02);
 }
 
-.portfolio-swiper .swiper-pagination-bullet {
-  background: theme('colors.secondary.DEFAULT');
-  opacity: 0.5;
+@media (min-width: 640px) {
+  .portfolio-swiper .swiper-slide-active {
+    transform: scale(1.05);
+  }
 }
 
-.portfolio-swiper .swiper-pagination-bullet-active {
-  background: theme('colors.primary.DEFAULT');
-  opacity: 1;
-}
-
+/* Navigation butonları pozisyonu */
 .portfolio-swiper .swiper-button-next,
 .portfolio-swiper .swiper-button-prev {
-  color: theme('colors.secondary.DEFAULT');
-  transition: all 0.3s ease;
+  top: 45%;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.portfolio-swiper .swiper-button-next:hover,
-.portfolio-swiper .swiper-button-prev:hover {
-  color: theme('colors.primary.DEFAULT');
-  transform: scale(1.1);
+.portfolio-swiper .swiper-button-next::after,
+.portfolio-swiper .swiper-button-prev::after {
+  font-size: 20px;
+}
+
+@media (min-width: 768px) {
+  .portfolio-swiper .swiper-button-next {
+    right: 10px;
+  }
+  
+  .portfolio-swiper .swiper-button-prev {
+    left: 10px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .portfolio-swiper .swiper-button-next {
+    right: -10px;
+  }
+  
+  .portfolio-swiper .swiper-button-prev {
+    left: -10px;
+  }
 }

@@ -43,6 +43,60 @@ export default function Portfolio() {
     item => selectedCategory === 'TÜMÜ' || item.category === selectedCategory
   )
 
+  // Swiper için breakpoint ayarları
+  const swiperBreakpoints = {
+    320: {  // mobil telefonlar için
+      slidesPerView: 1,
+      spaceBetween: 15,
+      coverflowEffect: {
+        rotate: 30,
+        depth: 50,
+        stretch: 0,
+        modifier: 1,
+      }
+    },
+    640: {  // tablet için
+      slidesPerView: 1.5,
+      spaceBetween: 20,
+      coverflowEffect: {
+        rotate: 35,
+        depth: 80,
+        stretch: 0,
+        modifier: 1,
+      }
+    },
+    768: {  // büyük tablet için
+      slidesPerView: 2,
+      spaceBetween: 25,
+      coverflowEffect: {
+        rotate: 35,
+        depth: 100,
+        stretch: 0,
+        modifier: 1,
+      }
+    },
+    1024: {  // laptop için
+      slidesPerView: 2.5,
+      spaceBetween: 30,
+      coverflowEffect: {
+        rotate: 40,
+        depth: 120,
+        stretch: 0,
+        modifier: 1,
+      }
+    },
+    1280: {  // desktop için
+      slidesPerView: 3,
+      spaceBetween: 35,
+      coverflowEffect: {
+        rotate: 45,
+        depth: 140,
+        stretch: 0,
+        modifier: 1,
+      }
+    }
+  }
+
   return (
     <section id="portfolio-section" className="relative min-h-screen">
       <div className="container mx-auto px-4 py-24">
@@ -82,7 +136,7 @@ export default function Portfolio() {
         </motion.div>
         
         {/* Category Filters */}
-        <div className="flex justify-center flex-wrap gap-6 md:gap-10 mb-24">
+        <div className="flex justify-center flex-wrap gap-6 md:gap-10 mb-16">
           {categories.map((category, index) => (
             <motion.button
               key={category}
@@ -111,47 +165,98 @@ export default function Portfolio() {
           ))}
         </div>
 
-        {/* Yeni Carousel Grid */}
+        {/* Güncellenmiş Carousel Grid */}
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedCategory}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="relative px-4 py-10"
+            className="relative px-0 sm:px-4"
           >
+            <style jsx global>{`
+              .swiper-pagination-bullet {
+                background: linear-gradient(to right, var(--secondary), var(--primary));
+                opacity: 0.5;
+                transition: all 0.3s;
+              }
+              .swiper-pagination-bullet-active {
+                opacity: 1;
+                transform: scale(1.25);
+              }
+              .swiper-button-prev,
+              .swiper-button-next {
+                width: 48px !important;
+                height: 48px !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                backdrop-filter: blur(4px);
+                border-radius: 50% !important;
+                color: var(--secondary-dark) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+                transition: all 0.3s !important;
+              }
+              .swiper-button-prev:hover,
+              .swiper-button-next:hover {
+                background: white !important;
+                transform: scale(1.1);
+              }
+              .swiper-button-prev:after,
+              .swiper-button-next:after {
+                font-size: 20px !important;
+                font-weight: bold;
+              }
+            `}</style>
+            
             <Swiper
               effect={'coverflow'}
               grabCursor={true}
               centeredSlides={true}
-              slidesPerView={'auto'}
               coverflowEffect={{
-                rotate: 50,
+                rotate: 45,
                 stretch: 0,
-                depth: 100,
+                depth: 140,
                 modifier: 1,
-                slideShadows: true,
+                slideShadows: false,
               }}
               autoplay={{
                 delay: 3000,
                 disableOnInteraction: false,
+                pauseOnMouseEnter: true,
               }}
-              pagination={{ clickable: true }}
+              pagination={{ 
+                clickable: true,
+                dynamicBullets: true,
+              }}
               navigation={true}
               modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
-              className="w-full portfolio-swiper"
+              breakpoints={swiperBreakpoints}
+              className="w-full portfolio-swiper !py-8"
             >
               {filteredItems.map((item) => (
-                <SwiperSlide key={item.id} className="max-w-[300px] sm:max-w-[400px]">
-                  <Card {...item} />
+                <SwiperSlide 
+                  key={item.id} 
+                  className="swiper-slide-custom"
+                >
+                  <div className="p-2 sm:p-3 md:p-4">
+                    <Card 
+                      id={item.id}
+                      title={item.title}
+                      category={item.category}
+                      imageUrl={item.imageUrl}
+                      description={item.description}
+                      dimensions={item.dimensions}
+                      technique={item.technique}
+                      index={item.id}
+                    />
+                  </div>
                 </SwiperSlide>
               ))}
             </Swiper>
           </motion.div>
         </AnimatePresence>
 
-        {/* Gallery Link bölümü - Load More butonunu kaldırıyoruz */}
-        <div className="flex justify-center mt-24">
+        {/* Gallery Link bölümü */}
+        <div className="flex justify-center mt-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

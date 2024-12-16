@@ -11,7 +11,7 @@ export default function Hero() {
   }, [])
 
   return (
-    <div className="relative min-h-screen bg-cream-light/30">
+    <div className="relative min-h-screen bg-cream-light/30 ">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 sm:-top-40 -right-20 sm:-right-40 w-64 sm:w-96 h-64 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
