@@ -3,6 +3,14 @@
 import { useState, useEffect } from 'react'
 import Card from './Card'
 import { motion, AnimatePresence } from 'framer-motion'
+import { portfolioItems, categories } from '@/data/portfolioData'
+import Link from 'next/link'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { EffectCoverflow, Pagination, Navigation, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/effect-coverflow'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
 
 export default function Portfolio() {
   const [isVisible, setIsVisible] = useState(false)
@@ -31,95 +39,50 @@ export default function Portfolio() {
     }
   }, [])
 
-  const categories = ['TÜMÜ', 'DOĞA', 'PORTRE', 'NATÜRMORT', 'SOKAK']
-
-  // Örnek portfolyo öğeleri - Gerçek projede API'den gelecek
-  const portfolioItems = [
-    { 
-      id: 1, 
-      title: 'Doğanın Ritmi', 
-      category: 'DOĞA', 
-      imageUrl: '/portfolio/nature1.jpg',
-      description: 'Doğanın muhteşem renklerini ve dokularını yansıtan bir eser.',
-      dimensions: '60x80 cm',
-      technique: 'Yağlı Boya'
-    },
-    { 
-      id: 2, 
-      title: 'Şehrin Ruhu', 
-      category: 'SOKAK', 
-      imageUrl: '/portfolio/street1.jpg', 
-      description: 'Modern şehir yaşamının dinamik yapısını yansıtan bir çalışma.',
-      dimensions: '50x70 cm',
-      technique: 'Akrilik'
-    },
-    { 
-      id: 3, 
-      title: 'Sonbahar Portresi', 
-      category: 'PORTRE', 
-      imageUrl: '/portfolio/portrait1.jpg',
-      description: 'Sonbaharın sıcak tonlarıyla harmanlanmış duygusal bir portre.',
-      dimensions: '40x60 cm', 
-      technique: 'Karışık Teknik'
-    },
-    { 
-      id: 4, 
-      title: 'Natürmort Kompozisyon', 
-      category: 'NATÜRMORT', 
-      imageUrl: '/portfolio/still1.jpg',
-      description: 'Klasik natürmort anlayışına modern bir yorum.',
-      dimensions: '45x65 cm',
-      technique: 'Yağlı Boya'
-    },
-    // ... diğer öğeler
-  ]
-
   const filteredItems = portfolioItems.filter(
     item => selectedCategory === 'TÜMÜ' || item.category === selectedCategory
-  ).slice(0, visibleItems)
-
-  const handleLoadMore = () => {
-    setVisibleItems(prev => prev + 4)
-  }
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
+  )
 
   return (
-    <section id="portfolio-section" className="relative min-h-screen bg-gradient-to-r from-cream-50 to-green-50">
+    <section id="portfolio-section" className="relative min-h-screen">
       <div className="container mx-auto px-4 py-24">
         {/* Header */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-24"
         >
-          <h2 className="text-6xl font-serif mb-6">
-            <span className="bg-gradient-to-r from-green-700 to-gold-600 bg-clip-text text-transparent">
+          <h2 className="text-7xl font-serif mb-8 relative">
+            <span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-secondary/20 to-primary/20 rounded-full"></span>
+            <span className="relative bg-gradient-to-r from-secondary via-secondary-dark to-primary bg-clip-text text-transparent">
               PORTFÖY
             </span>
           </h2>
-          <p className="text-green-800/90 max-w-3xl mx-auto mb-8 text-lg">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-secondary-dark/80 max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
+          >
             Sanatın farklı dallarında ürettiğim eserleri keşfedin. Her bir eser, duyguları ve hikayeleri 
             tuval üzerinde hayata geçiriyor.
-          </p>
-          <div className="flex items-center justify-center gap-6">
-            <div className="h-[2px] w-24 bg-gradient-to-r from-green-600 to-green-700"></div>
-            <div className="h-3 w-3 rounded-full bg-gold-500"></div>
-            <div className="h-[2px] w-24 bg-gradient-to-r from-gold-500 to-gold-600"></div>
-          </div>
+          </motion.p>
+          <motion.div 
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            transition={{ delay: 0.5, type: "spring" }}
+            className="flex items-center justify-center gap-8"
+          >
+            <div className="h-[3px] w-32 bg-gradient-to-r from-secondary to-transparent rounded-full"></div>
+            <div className="h-4 w-4 rounded-full bg-primary animate-pulse"></div>
+            <div className="h-[3px] w-32 bg-gradient-to-l from-primary to-transparent rounded-full"></div>
+          </motion.div>
         </motion.div>
         
         {/* Category Filters */}
-        <div className="flex justify-center flex-wrap gap-5 md:gap-8 mb-20">
+        <div className="flex justify-center flex-wrap gap-6 md:gap-10 mb-24">
           {categories.map((category, index) => (
             <motion.button
               key={category}
@@ -130,59 +93,83 @@ export default function Portfolio() {
                 setSelectedCategory(category)
                 setVisibleItems(8)
               }}
-              className={`text-sm tracking-wider transition-all duration-500 px-8 py-4 rounded-2xl backdrop-blur-sm
+              className={`relative text-sm tracking-wider px-10 py-5 rounded-2xl overflow-hidden
+                transition-all duration-500 transform hover:scale-105
                 ${selectedCategory === category 
-                  ? 'bg-gradient-to-r from-green-700 to-gold-600 text-white shadow-xl transform -translate-y-1'
-                  : 'bg-white/80 text-green-800 hover:text-gold-600 shadow-lg hover:shadow-xl hover:-translate-y-1'
-              }`}
+                  ? 'text-white shadow-xl shadow-secondary/20'
+                  : 'text-secondary-dark hover:text-white'
+                }`}
             >
-              {category}
+              <span className="relative z-10">{category}</span>
+              <div className={`absolute inset-0 transition-all duration-500
+                ${selectedCategory === category 
+                  ? 'opacity-100 bg-gradient-to-br from-secondary via-secondary-dark to-primary'
+                  : 'opacity-0 hover:opacity-100 bg-gradient-to-br from-primary via-secondary to-secondary-dark'
+                }`}
+              ></div>
             </motion.button>
           ))}
         </div>
 
-        {/* Gallery Grid */}
+        {/* Yeni Carousel Grid */}
         <AnimatePresence mode="wait">
-          <motion.div 
+          <motion.div
             key={selectedCategory}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="relative px-4 py-10"
           >
-            {filteredItems.map((item, index) => (
-              <Card
-                key={item.id}
-                {...item}
-                delay={index}
-              />
-            ))}
+            <Swiper
+              effect={'coverflow'}
+              grabCursor={true}
+              centeredSlides={true}
+              slidesPerView={'auto'}
+              coverflowEffect={{
+                rotate: 50,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: true,
+              }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+              }}
+              pagination={{ clickable: true }}
+              navigation={true}
+              modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
+              className="w-full portfolio-swiper"
+            >
+              {filteredItems.map((item) => (
+                <SwiperSlide key={item.id} className="max-w-[300px] sm:max-w-[400px]">
+                  <Card {...item} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </motion.div>
         </AnimatePresence>
 
-        {/* Show More Button */}
-        {filteredItems.length < portfolioItems.length && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+        {/* Gallery Link bölümü - Load More butonunu kaldırıyoruz */}
+        <div className="flex justify-center mt-24">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            className="text-center mt-20"
           >
-            <button 
-              onClick={handleLoadMore}
-              className="group relative px-10 py-5 bg-white/90 backdrop-blur-sm text-green-800 overflow-hidden rounded-2xl
-                transition-all duration-500 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
+            <Link href="/gallery"
+              className="group relative px-12 py-6 overflow-hidden rounded-2xl
+                transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-primary/20
+                bg-gradient-to-br from-primary via-secondary to-secondary-dark"
             >
-              <span className="relative z-10 text-sm tracking-wider uppercase font-medium group-hover:text-white">
-                Daha Fazla Göster
+              <span className="relative z-10 text-sm tracking-wider uppercase font-medium text-white">
+                Tüm Galeriyi Görüntüle
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-green-700 to-gold-600 
-                transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-              </div>
-            </button>
+            </Link>
           </motion.div>
-        )}
+        </div>
       </div>
     </section>
   )
-} 
+}

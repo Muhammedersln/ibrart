@@ -8,42 +8,21 @@ const config = {
   theme: {
     extend: {
       colors: {
-        gold: {
-          50: '#FBF7E9',
-          100: '#F5EAC7',
-          200: '#E8D292',
-          300: '#D4B55D',
-          400: '#C19835',
-          500: '#A37E2C',
-          600: '#8A6824',
-          700: '#71531D',
-          800: '#583F16',
-          900: '#3F2C0F',
+        primary: {
+          light: '#D4B77F',
+          DEFAULT: '#A37E2C',
+          dark: '#785C20',
         },
-        green: {
-          50: '#E6F5EF',
-          100: '#CCEADF',
-          200: '#99D5BF',
-          300: '#66C09F',
-          400: '#33AB7F',
-          500: '#006039',
-          600: '#004D2E',
-          700: '#003A23',
-          800: '#002718',
-          900: '#00130C',
+        secondary: {
+          light: '#338F63',
+          DEFAULT: '#006039',
+          dark: '#004528',
         },
         white: '#FFFFFF',
         cream: {
-          50: '#FFFFFF',
-          100: '#FEFEFE',
-          200: '#FAFAFA',
-          300: '#F5F5F5',
-          400: '#EFEFEF',
-          500: '#E5E5E5',
-          600: '#CCCCCC',
-          700: '#B3B3B3',
-          800: '#999999',
-          900: '#808080',
+          light: '#FEFDFB',
+          DEFAULT: '#F9F6F0',
+          dark: '#EAE6DD',
         }
       },
       fontFamily: {

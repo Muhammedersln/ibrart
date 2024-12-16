@@ -27,7 +27,7 @@ export default function Navbar() {
     <nav 
       className={`fixed w-full z-50 transition-all duration-300
         ${isScrolled 
-          ? 'bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-b border-gold-200'
+          ? 'bg-white/95 backdrop-blur-sm shadow-sm border-b border-cream-dark/10'
           : 'bg-transparent'}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,8 +36,12 @@ export default function Navbar() {
             href="/" 
             className="font-serif text-2xl tracking-wide relative group"
           >
-            <span className="bg-gradient-to-r from-green-600 to-gold-500 bg-clip-text text-transparent
-              group-hover:from-gold-400 group-hover:to-green-500 transition-all duration-500 font-bold">
+            <span className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent
+              transition-all duration-300 font-bold group-hover:opacity-0">
+              İBRAHİM
+            </span>
+            <span className="absolute top-0 left-0 bg-gradient-to-r from-primary to-secondary bg-clip-text 
+              text-transparent font-bold opacity-0 group-hover:opacity-100 transition-all duration-300">
               İBRAHİM
             </span>
           </Link>
@@ -48,12 +52,12 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-green-800 hover:text-gold-500 tracking-widest transition-all duration-300 
+                className="text-sm text-secondary-dark hover:text-primary tracking-widest transition-all duration-300 
                   relative group font-medium"
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-600 to-gold-500 
-                  transition-all duration-300 group-hover:w-full opacity-90"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary 
+                  transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
           </div>
@@ -65,16 +69,16 @@ export default function Navbar() {
           >
             <div className="relative w-6 h-6">
               <span 
-                className={`absolute h-0.5 w-full bg-gradient-to-r from-green-600 to-gold-500 transform transition-all duration-300
-                  ${isMenuOpen ? 'rotate-45 top-3 shadow-sm' : 'top-1'}`}
+                className={`absolute h-0.5 w-full bg-secondary transform transition-all duration-300
+                  ${isMenuOpen ? 'rotate-45 top-3' : 'top-1'}`}
               />
               <span 
-                className={`absolute h-0.5 w-full bg-gradient-to-r from-gold-400 to-green-500 top-3 transform transition-all duration-300
-                  ${isMenuOpen ? 'opacity-0' : 'opacity-100 shadow-sm'}`}
+                className={`absolute h-0.5 w-full bg-primary top-3 transform transition-all duration-300
+                  ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}
               />
               <span 
-                className={`absolute h-0.5 w-full bg-gradient-to-r from-green-600 to-gold-500 transform transition-all duration-300
-                  ${isMenuOpen ? '-rotate-45 top-3 shadow-sm' : 'top-5'}`}
+                className={`absolute h-0.5 w-full bg-secondary transform transition-all duration-300
+                  ${isMenuOpen ? '-rotate-45 top-3' : 'top-5'}`}
               />
             </div>
           </button>
@@ -82,9 +86,9 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         <div 
-          className={`md:hidden transition-all duration-300 overflow-hidden
+          className={`md:hidden transition-all duration-300
             ${isMenuOpen 
-              ? 'max-h-96 opacity-100 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-t border-gold-100' 
+              ? 'max-h-64 opacity-100 bg-white shadow-md' 
               : 'max-h-0 opacity-0'}`}
         >
           <div className="py-4 space-y-2">
@@ -92,8 +96,8 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="block px-4 py-2 text-sm text-green-800 hover:text-gold-500 tracking-widest 
-                  transition-all duration-300 font-medium hover:bg-gradient-to-r hover:from-cream-50 hover:to-green-50"
+                className="block px-4 py-2 text-sm text-secondary-dark hover:text-primary tracking-widest 
+                  transition-all duration-300 font-medium hover:bg-cream-light"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
@@ -104,4 +108,4 @@ export default function Navbar() {
       </div>
     </nav>
   )
-} 
+}

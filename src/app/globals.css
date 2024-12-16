@@ -5,7 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    @apply bg-white text-green-900;
+    @apply bg-white text-secondary-dark;
   }
 
   body {
@@ -17,7 +17,7 @@
   }
 
   ::selection {
-    @apply bg-green-100 text-green-900;
+    @apply bg-secondary-light text-secondary-dark;
   }
 }
 
@@ -32,37 +32,74 @@
   }
 
   .btn-primary {
-    @apply bg-green-500 text-white hover:bg-green-600 hover:scale-105 hover:shadow-lg hover:shadow-green-500/20;
+    @apply bg-secondary text-white hover:bg-secondary-dark hover:scale-105 hover:shadow-lg hover:shadow-secondary/20;
   }
 
   .btn-secondary {
-    @apply bg-gold-500 text-white hover:bg-gold-600 hover:scale-105 hover:shadow-lg hover:shadow-gold-500/20;
+    @apply bg-primary text-white hover:bg-primary-dark hover:scale-105 hover:shadow-lg hover:shadow-primary/20;
   }
 
   .btn-outline {
-    @apply border-2 border-green-500 text-green-500 
-      hover:bg-green-500 hover:text-white hover:scale-105;
+    @apply border-2 border-secondary text-secondary 
+      hover:bg-secondary hover:text-white hover:scale-105;
   }
 
   .input {
-    @apply w-full px-4 py-3 bg-cream-100 border border-cream-300 rounded-lg
-      text-green-900 placeholder-cream-700
-      focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent
+    @apply w-full px-4 py-3 bg-cream-light border border-cream 
+      text-secondary-dark placeholder-cream-dark
+      focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent
       transition-all duration-300;
   }
 
   .card {
     @apply bg-white rounded-xl overflow-hidden shadow-sm
-      transition-all duration-300 hover:shadow-xl hover:shadow-green-500/5;
+      transition-all duration-300 hover:shadow-xl hover:shadow-secondary/5;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-green-500 via-green-600 to-gold-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary via-secondary to-primary;
   }
 
   .bg-gradient {
-    @apply bg-gradient-to-br from-green-500 via-green-600 to-gold-500;
+    @apply bg-gradient-to-br from-secondary via-secondary to-primary;
   }
+}
+
+/* Swiper özelleştirmeleri */
+.portfolio-swiper {
+  padding: 50px 0;
+}
+
+.portfolio-swiper .swiper-slide {
+  transition: all 0.3s ease;
+  opacity: 0.4;
+}
+
+.portfolio-swiper .swiper-slide-active {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.portfolio-swiper .swiper-pagination-bullet {
+  background: theme('colors.secondary.DEFAULT');
+  opacity: 0.5;
+}
+
+.portfolio-swiper .swiper-pagination-bullet-active {
+  background: theme('colors.primary.DEFAULT');
+  opacity: 1;
+}
+
+.portfolio-swiper .swiper-button-next,
+.portfolio-swiper .swiper-button-prev {
+  color: theme('colors.secondary.DEFAULT');
+  transition: all 0.3s ease;
+}
+
+.portfolio-swiper .swiper-button-next:hover,
+.portfolio-swiper .swiper-button-prev:hover {
+  color: theme('colors.primary.DEFAULT');
+  transform: scale(1.1);
 }
