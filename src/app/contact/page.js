@@ -1,16 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { FaInstagram, FaTiktok, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaChevronDown } from 'react-icons/fa'
 
 export default function ContactPage() {
-  const [isVisible, setIsVisible] = useState(false)
   const [openFaqIndex, setOpenFaqIndex] = useState(null)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
 
   const socialLinks = [
     {
