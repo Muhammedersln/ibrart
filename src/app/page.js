@@ -1,12 +1,12 @@
-import Hero from '@/components/Hero'
+import HeroSection from '@/app/components/HeroSection'
 import Navbar from '@/components/Navbar'
-import Portfolio from '@/components/Portfolio'
+import PortfolioSection from '@/app/components/PortfolioSection'
 
 export default function Home() {
   return (
     <main className="">
-      <Hero />
-      <Portfolio />
+      <HeroSection />
+      <PortfolioSection />
     </main>
   )
 }

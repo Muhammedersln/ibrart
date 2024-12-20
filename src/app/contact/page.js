@@ -1,245 +1,239 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Navbar from '@/components/Navbar'
+import { motion } from 'framer-motion'
+import { FaInstagram, FaTiktok, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaChevronDown } from 'react-icons/fa'
 
 export default function ContactPage() {
   const [isVisible, setIsVisible] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  })
+  const [openFaqIndex, setOpenFaqIndex] = useState(null)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Form gönderme işlemi burada gerçekleştirilecek
-    console.log('Form data:', formData)
-  }
+  const socialLinks = [
+    {
+      icon: <FaInstagram size={24} />,
+      url: 'https://instagram.com/ibrart',
+      label: 'Instagram',
+      color: 'hover:text-pink-500',
+      followers: '10K+'
+    },
+    {
+      icon: <FaTiktok size={24} />,
+      url: 'https://tiktok.com/@ibrart',
+      label: 'TikTok',
+      color: 'hover:text-black',
+      followers: '5K+'
+    },
+    {
+      icon: <FaYoutube size={24} />,
+      url: 'https://youtube.com/@ibrart',
+      label: 'YouTube',
+      color: 'hover:text-red-600',
+      subscribers: '2K+'
+    }
+  ]
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+  const faqItems = [
+    {
+      question: 'Portre siparişi nasıl verebilirim?',
+      answer: 'WhatsApp üzerinden bizimle iletişime geçerek portre siparişi verebilirsiniz. Size özel çalışma için fotoğrafınızı paylaşabilir ve detayları konuşabiliriz.'
+    },
+    {
+      question: 'Portre çalışması ne kadar sürer?',
+      answer: 'Portre çalışması genellikle 1-2 hafta içinde tamamlanır. Yoğunluğa ve çalışmanın detaylarına göre bu süre değişebilir.'
+    },
+    {
+      question: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+      answer: 'Banka havalesi, EFT ve kredi kartı ile ödeme yapabilirsiniz. Sipariş öncesi %50 ön ödeme alınmaktadır.'
+    },
+    {
+      question: 'Portre için hangi fotoğraflar uygundur?',
+      answer: 'Yüksek çözünürlüklü, net ve iyi aydınlatılmış fotoğraflar en iyi sonucu verir. Portre için gönderdiğiniz fotoğrafları değerlendirip size geri dönüş yapıyoruz.'
+    }
+  ]
+
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index)
   }
 
   return (
-    <main className="bg-green-900 min-h-screen">
-      <Navbar />
-      <div className="pt-20">
-        <div className="container mx-auto px-4 py-16">
-          <h1 
-            className={`text-4xl md:text-5xl text-gold-500 text-center mb-16 font-serif transition-all duration-1000
-              ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+    <main className="min-h-screen bg-cream-light/30">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-20 sm:-top-40 -right-20 sm:-right-40 w-64 sm:w-96 h-64 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -left-20 sm:-left-40 w-56 sm:w-80 h-56 sm:h-80 bg-secondary/5 rounded-full blur-3xl animate-pulse delay-700"></div>
+      </div>
+
+      <div className="relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+          {/* Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
           >
-            İLETİŞİM
-          </h1>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif mb-6 relative">
+              <span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-secondary/20 to-primary/20 rounded-full"></span>
+              <span className="relative bg-gradient-to-r from-secondary via-secondary-dark to-primary bg-clip-text text-transparent">
+                İLETİŞİM
+              </span>
+            </h1>
+            <p className="text-lg text-secondary-dark/80 max-w-2xl mx-auto">
+              Sanatla ilgili tüm sorularınız için buradayız. Size en uygun iletişim kanalından ulaşabilirsiniz.
+            </p>
+          </motion.div>
 
-          <div className="max-w-6xl mx-auto">
-            <div 
-              className={`grid grid-cols-1 md:grid-cols-2 gap-12 transition-all duration-1000 delay-300
-                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            {/* Left Column - Contact Info & Social */}
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="space-y-8"
             >
-              {/* İletişim Bilgileri */}
-              <div className="space-y-8">
-                <div className="bg-green-800 p-8 rounded-2xl shadow-lg">
-                  <h2 className="text-2xl text-gold-500 mb-6 font-serif">İletişim Bilgileri</h2>
-                  <div className="space-y-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-700 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gold-500 mb-1">Adres</h3>
-                        <p className="text-cream-100">
-                          Sanat Sokağı No: 123
-                          <br />
-                          Kadıköy, İstanbul
-                        </p>
-                      </div>
+              {/* Quick Contact Card */}
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Hızlı İletişim</h2>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <FaMapMarkerAlt className="w-5 h-5 text-primary" />
                     </div>
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-700 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gold-500 mb-1">Telefon</h3>
-                        <p className="text-cream-100">+90 (212) 345 67 89</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-green-700 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gold-500 mb-1">E-posta</h3>
-                        <p className="text-cream-100">info@ibrahimart.com</p>
-                      </div>
+                    <div>
+                      <h3 className="text-secondary-dark font-medium mb-1">Atölye</h3>
+                      <p className="text-secondary-dark/70">Sanat Sokağı No: 123<br />Kadıköy, İstanbul</p>
                     </div>
                   </div>
-                </div>
-
-                {/* Sosyal Medya */}
-                <div className="bg-green-800 p-8 rounded-2xl shadow-lg">
-                  <h2 className="text-2xl text-gold-500 mb-6 font-serif">Sosyal Medya</h2>
-                  <div className="flex space-x-6">
-                    <a
-                      href="https://instagram.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group"
-                    >
-                      <div className="w-12 h-12 bg-green-700 rounded-full flex items-center justify-center transition-colors duration-300 group-hover:bg-green-600">
-                        <svg
-                          className="w-6 h-6 text-gold-500 transition-colors duration-300 group-hover:text-gold-400"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                        </svg>
-                      </div>
-                    </a>
-                    <a
-                      href="https://facebook.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group"
-                    >
-                      <div className="w-12 h-12 bg-green-700 rounded-full flex items-center justify-center transition-colors duration-300 group-hover:bg-green-600">
-                        <svg
-                          className="w-6 h-6 text-gold-500 transition-colors duration-300 group-hover:text-gold-400"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                      </div>
-                    </a>
-                    <a
-                      href="https://twitter.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group"
-                    >
-                      <div className="w-12 h-12 bg-green-700 rounded-full flex items-center justify-center transition-colors duration-300 group-hover:bg-green-600">
-                        <svg
-                          className="w-6 h-6 text-gold-500 transition-colors duration-300 group-hover:text-gold-400"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                        </svg>
-                      </div>
-                    </a>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <FaPhone className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-secondary-dark font-medium mb-1">Telefon</h3>
+                      <p className="text-secondary-dark/70">+90 (212) 345 67 89</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <FaEnvelope className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-secondary-dark font-medium mb-1">E-posta</h3>
+                      <p className="text-secondary-dark/70">info@ibrahimart.com</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* İletişim Formu */}
-              <div className="bg-green-800 p-8 rounded-2xl shadow-lg">
-                <h2 className="text-2xl text-gold-500 mb-6 font-serif">Mesaj Gönder</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-cream-200 mb-1"
+              {/* Social Media Showcase */}
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Sosyal Medya</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {socialLinks.map((link, index) => (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center gap-3 p-4 rounded-xl bg-cream/30
+                        transition-all duration-300 group hover:bg-cream/50 ${link.color}`}
                     >
-                      Ad Soyad
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-green-700 border border-green-600 rounded-lg
-                        text-cream-100 placeholder-cream-300
-                        focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent
-                        transition-all duration-300"
-                    />
+                      <div className="transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                        {link.icon}
+                      </div>
+                      <div>
+                        <span className="font-medium block">{link.label}</span>
+                        <span className="text-sm text-secondary-dark/70">
+                          {link.followers || link.subscribers}
+                        </span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+                {/* WhatsApp CTA */}
+                <a
+                  href="https://wa.me/905555555555"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 flex items-center justify-center gap-3 p-4 rounded-xl bg-green-500 text-white
+                    transition-all duration-300 group hover:bg-green-600 w-full"
+                >
+                  <div className="transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                    <FaWhatsapp size={24} />
                   </div>
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-cream-200 mb-1"
-                    >
-                      E-posta
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-green-700 border border-green-600 rounded-lg
-                        text-cream-100 placeholder-cream-300
-                        focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent
-                        transition-all duration-300"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="subject"
-                      className="block text-sm font-medium text-cream-200 mb-1"
-                    >
-                      Konu
-                    </label>
-                    <input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-green-700 border border-green-600 rounded-lg
-                        text-cream-100 placeholder-cream-300
-                        focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent
-                        transition-all duration-300"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-medium text-cream-200 mb-1"
-                    >
-                      Mesaj
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={6}
-                      className="w-full px-4 py-3 bg-green-700 border border-green-600 rounded-lg
-                        text-cream-100 placeholder-cream-300
-                        focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent
-                        transition-all duration-300"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full px-12 py-4 border-2 border-gold-500 text-gold-500 hover:bg-gold-500 hover:text-cream-100
-                      transition-all duration-300 tracking-wider uppercase text-sm rounded-lg"
-                  >
-                    Gönder
-                  </button>
-                </form>
+                  <span className="font-medium">WhatsApp ile İletişime Geç</span>
+                </a>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Right Column - FAQ & Working Hours */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="space-y-8"
+            >
+              {/* FAQ Section */}
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Sıkça Sorulan Sorular</h2>
+                <div className="space-y-4">
+                  {faqItems.map((item, index) => (
+                    <div key={index} className="border-b border-cream-dark/10 last:border-0">
+                      <button
+                        onClick={() => toggleFaq(index)}
+                        className="w-full flex items-center justify-between py-4 text-left"
+                      >
+                        <span className="font-medium text-secondary-dark">{item.question}</span>
+                        <FaChevronDown
+                          className={`w-5 h-5 text-primary transition-transform duration-300
+                            ${openFaqIndex === index ? 'transform rotate-180' : ''}`}
+                        />
+                      </button>
+                      {openFaqIndex === index && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="pb-4 text-secondary-dark/70"
+                        >
+                          {item.answer}
+                        </motion.div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Çalışma Saatleri</h2>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-secondary-dark">Pazartesi - Cuma</span>
+                    <span className="text-primary font-medium">09:00 - 18:00</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-secondary-dark">Cumartesi</span>
+                    <span className="text-primary font-medium">10:00 - 16:00</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-secondary-dark">Pazar</span>
+                    <span className="text-secondary-dark/70">Kapalı</span>
+                  </div>
+                  <div className="mt-6 p-4 bg-cream/30 rounded-xl">
+                    <p className="text-sm text-secondary-dark/70">
+                      * Randevu sistemiyle çalışmaktayız. Ziyaret öncesi lütfen iletişime geçiniz.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>

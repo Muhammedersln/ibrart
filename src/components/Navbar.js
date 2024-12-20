@@ -1,13 +1,19 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Navbar() {
+  const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [activeItem, setActiveItem] = useState('/')
+  const [activeItem, setActiveItem] = useState(pathname)
+
+  useEffect(() => {
+    setActiveItem(pathname)
+  }, [pathname])
 
   useEffect(() => {
     const handleScroll = () => {

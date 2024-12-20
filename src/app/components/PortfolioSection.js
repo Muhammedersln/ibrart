@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Card from './Card'
+import Card from '@/app/components/Card'
 import { motion, AnimatePresence } from 'framer-motion'
 import { portfolioItems, categories } from '@/data/portfolioData'
 import Link from 'next/link'
@@ -46,7 +46,17 @@ export default function Portfolio() {
   // Swiper için breakpoint ayarları
   const swiperBreakpoints = {
     320: {  // mobil telefonlar için
-      slidesPerView: 1,
+      slidesPerView: 1.1,
+      spaceBetween: 12,
+      coverflowEffect: {
+        rotate: 25,
+        depth: 40,
+        stretch: 0,
+        modifier: 1,
+      }
+    },
+    480: {  // büyük mobil için
+      slidesPerView: 1.2,
       spaceBetween: 15,
       coverflowEffect: {
         rotate: 30,
@@ -99,16 +109,16 @@ export default function Portfolio() {
 
   return (
     <section id="portfolio-section" className="relative min-h-screen">
-      <div className="container mx-auto px-4 py-24">
+      <div className="container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className="text-center mb-16 sm:mb-24"
         >
-          <h2 className="text-7xl font-serif mb-8 relative">
+          <h2 className="text-5xl sm:text-7xl font-serif mb-6 sm:mb-8 relative">
             <span className="absolute -inset-1 blur-2xl bg-gradient-to-r from-secondary/20 to-primary/20 rounded-full"></span>
             <span className="relative bg-gradient-to-r from-secondary via-secondary-dark to-primary bg-clip-text text-transparent">
               PORTFÖY
@@ -118,7 +128,7 @@ export default function Portfolio() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-secondary-dark/80 max-w-3xl mx-auto mb-10 text-lg leading-relaxed"
+            className="text-secondary-dark/80 max-w-3xl mx-auto mb-8 sm:mb-10 text-base sm:text-lg leading-relaxed px-4"
           >
             Sanatın farklı dallarında ürettiğim eserleri keşfedin. Her bir eser, duyguları ve hikayeleri 
             tuval üzerinde hayata geçiriyor.
@@ -127,16 +137,16 @@ export default function Portfolio() {
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
             transition={{ delay: 0.5, type: "spring" }}
-            className="flex items-center justify-center gap-8"
+            className="flex items-center justify-center gap-6 sm:gap-8"
           >
-            <div className="h-[3px] w-32 bg-gradient-to-r from-secondary to-transparent rounded-full"></div>
-            <div className="h-4 w-4 rounded-full bg-primary animate-pulse"></div>
-            <div className="h-[3px] w-32 bg-gradient-to-l from-primary to-transparent rounded-full"></div>
+            <div className="h-[2px] sm:h-[3px] w-24 sm:w-32 bg-gradient-to-r from-secondary to-transparent rounded-full"></div>
+            <div className="h-3 sm:h-4 w-3 sm:w-4 rounded-full bg-primary animate-pulse"></div>
+            <div className="h-[2px] sm:h-[3px] w-24 sm:w-32 bg-gradient-to-l from-primary to-transparent rounded-full"></div>
           </motion.div>
         </motion.div>
         
         {/* Category Filters */}
-        <div className="flex justify-center flex-wrap gap-6 md:gap-10 mb-16">
+        <div className="flex justify-center flex-wrap gap-3 sm:gap-6 md:gap-10 mb-12 sm:mb-16 px-2">
           {categories.map((category, index) => (
             <motion.button
               key={category}
@@ -147,7 +157,7 @@ export default function Portfolio() {
                 setSelectedCategory(category)
                 setVisibleItems(8)
               }}
-              className={`relative text-sm tracking-wider px-10 py-5 rounded-2xl overflow-hidden
+              className={`relative text-xs sm:text-sm tracking-wider px-6 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl overflow-hidden
                 transition-all duration-500 transform hover:scale-105
                 ${selectedCategory === category 
                   ? 'text-white shadow-xl shadow-secondary/20'
@@ -186,14 +196,21 @@ export default function Portfolio() {
               }
               .swiper-button-prev,
               .swiper-button-next {
-                width: 48px !important;
-                height: 48px !important;
+                width: 40px !important;
+                height: 40px !important;
                 background: rgba(255, 255, 255, 0.9) !important;
                 backdrop-filter: blur(4px);
                 border-radius: 50% !important;
                 color: var(--secondary-dark) !important;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
                 transition: all 0.3s !important;
+              }
+              @media (min-width: 640px) {
+                .swiper-button-prev,
+                .swiper-button-next {
+                  width: 48px !important;
+                  height: 48px !important;
+                }
               }
               .swiper-button-prev:hover,
               .swiper-button-next:hover {
@@ -202,8 +219,14 @@ export default function Portfolio() {
               }
               .swiper-button-prev:after,
               .swiper-button-next:after {
-                font-size: 20px !important;
+                font-size: 16px !important;
                 font-weight: bold;
+              }
+              @media (min-width: 640px) {
+                .swiper-button-prev:after,
+                .swiper-button-next:after {
+                  font-size: 20px !important;
+                }
               }
             `}</style>
             
@@ -230,7 +253,7 @@ export default function Portfolio() {
               navigation={true}
               modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
               breakpoints={swiperBreakpoints}
-              className="w-full portfolio-swiper !py-8"
+              className="w-full portfolio-swiper !py-6 sm:!py-8"
             >
               {filteredItems.map((item) => (
                 <SwiperSlide 
@@ -254,26 +277,6 @@ export default function Portfolio() {
             </Swiper>
           </motion.div>
         </AnimatePresence>
-
-        {/* Gallery Link bölümü */}
-        <div className="flex justify-center mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <Link href="/gallery"
-              className="group relative px-12 py-6 overflow-hidden rounded-2xl
-                transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-primary/20
-                bg-gradient-to-br from-primary via-secondary to-secondary-dark"
-            >
-              <span className="relative z-10 text-sm tracking-wider uppercase font-medium text-white">
-                Tüm Galeriyi Görüntüle
-              </span>
-            </Link>
-          </motion.div>
-        </div>
       </div>
     </section>
   )

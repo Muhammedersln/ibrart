@@ -2,6 +2,7 @@ import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
+import SocialMediaBar from '@/components/SocialMediaBar'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' })
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
     <html lang="tr" className={`${inter.variable} ${playfair.variable}`}>
       <body className="bg-cream-light">
         <Navbar />
+        <SocialMediaBar />
         <main className="min-h-screen pt-5 bg-gradient-to-br from-cream-light via-white to-cream">
           {children}
         </main>
