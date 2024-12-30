@@ -4,11 +4,11 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 
-export default function Card({ id, title, category, imageUrl, description, dimensions, technique, index = 0 }) {
+export default function Card({ _id, title, category, imageUrl, description, size, teknik, personCount, index = 0 }) {
   const router = useRouter()
 
   const handleClick = () => {
-    router.push(`/gallery/${id}`)
+    router.push(`/gallery/${_id}`)
   }
 
   return (
@@ -77,9 +77,11 @@ export default function Card({ id, title, category, imageUrl, description, dimen
               {description}
             </p>
             <div className="flex items-center gap-3 text-xs text-white/70 font-light">
-              <span>{dimensions}</span>
+              <span>{size}</span>
               <span className="w-1 h-1 rounded-full bg-white/40"></span>
-              <span>{technique}</span>
+              <span>{teknik}</span>
+              <span className="w-1 h-1 rounded-full bg-white/40"></span>
+              <span>{personCount}</span>
             </div>
           </div>
         </div>

@@ -2,40 +2,55 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { portfolioItems, categories } from '@/data/portfolioData'
-import Card from '@/app/components/Card'
-
-// Animasyon varyantları
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-}
+import Card from '../../components/Card'
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState('TÜMÜ')
-  const [filteredItems, setFilteredItems] = useState(portfolioItems)
+  const [selectedSize, setSelectedSize] = useState('TÜMÜ')
+  const [selectedPersonCount, setSelectedPersonCount] = useState('TÜMÜ')
+  const [artworks, setArtworks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+
+  const categories = ['TÜMÜ', 'Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi']
+  const sizes = ['TÜMÜ', '25x35', '35x50', '50x70']
+  const personCounts = ['TÜMÜ', 'Tekli', 'İkili', 'Üçlü', 'Dörtlü', 'Beşli', 'Altılı']
 
   useEffect(() => {
-    filterItems(selectedCategory)
-    setIsLoading(false)
-  }, [selectedCategory])
+    fetchArtworks()
+  }, [])
 
-  const filterItems = (category) => {
-    if (category === 'TÜMÜ') {
-      setFilteredItems(portfolioItems)
-    } else {
-      setFilteredItems(portfolioItems.filter(item => item.category === category))
+  const fetchArtworks = async () => {
+    try {
+      const response = await fetch('/api/artworks')
+      const data = await response.json()
+      setArtworks(data)
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error fetching artworks:', error)
+      setIsLoading(false)
     }
   }
 
+  const filteredItems = artworks
+    .filter(item => selectedCategory === 'TÜMÜ' || item.category === selectedCategory)
+    .filter(item => selectedSize === 'TÜMÜ' || item.size === selectedSize)
+    .filter(item => selectedPersonCount === 'TÜMÜ' || item.personCount === selectedPersonCount)
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
+
+  if (artworks.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center">Henüz eser eklenmemiş.</div>
+  }
+
   return (
-    <main className="min-h-screen bg-cream-light/30">
+    <div className="min-h-screen bg-white">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 sm:-top-40 -right-20 sm:-right-40 w-64 sm:w-96 h-64 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
@@ -43,7 +58,7 @@ export default function GalleryPage() {
       </div>
 
       <div className="relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+        <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
           {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -61,14 +76,16 @@ export default function GalleryPage() {
               Özel anlarınızı ve sevdiklerinizi sanatla ölümsüzleştirin. Her portre, benzersiz bir hikaye anlatır.
             </p>
 
-            {/* Sipariş Bölümü */}
+            {/* Sipariş Bölümü - Unchanged */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="max-w-4xl mx-auto bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-cream-dark/10"
+              className="max-w-4xl mx-auto bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-cream-dark/10 mb-16"
             >
+              {/* Existing order section content */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                {/* Left side content */}
                 <div className="space-y-6 text-left">
                   <h2 className="text-3xl font-serif text-secondary-dark">Sipariş Vermek İster Misiniz?</h2>
                   <p className="text-secondary-dark/80">
@@ -99,6 +116,7 @@ export default function GalleryPage() {
                   </ul>
                 </div>
 
+                {/* Right side content */}
                 <div className="space-y-6">
                   <div className="bg-cream/30 rounded-2xl p-6 space-y-4">
                     <h3 className="text-xl font-serif text-secondary-dark">Neden Portre?</h3>
@@ -141,55 +159,131 @@ export default function GalleryPage() {
             </motion.div>
           </motion.div>
 
-          {/* Category Filter */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-wrap justify-center gap-4 mb-12"
-          >
-            {categories.map((category, index) => (
-              <motion.button
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-xl text-sm font-medium tracking-wider
-                  transition-all duration-300 transform hover:scale-105
-                  ${selectedCategory === category
-                    ? 'bg-gradient-to-r from-secondary via-secondary-dark to-primary text-white shadow-lg'
-                    : 'bg-white/80 text-secondary-dark hover:bg-white hover:shadow-md'
-                  }`}
-              >
-                {category}
-              </motion.button>
-            ))}
-          </motion.div>
+          {/* Modern Filter Bar */}
+          <div className="sticky top-4 z-10 mb-8">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg p-4 max-w-7xl mx-auto"
+            >
+              <div className="flex flex-wrap gap-4 items-center justify-between">
+                {/* Filter Groups */}
+                <div className="flex flex-wrap gap-4 items-center flex-1">
+                  {/* Category Dropdown */}
+                  <div className="relative group">
+                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
+                      <span>Kategori: {selectedCategory}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                      {categories.map((category, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedCategory(category)}
+                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
+                            ${selectedCategory === category ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Size Dropdown */}
+                  <div className="relative group">
+                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
+                      <span>Boyut: {selectedSize}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                      {sizes.map((size, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedSize(size)}
+                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
+                            ${selectedSize === size ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Person Count Dropdown */}
+                  <div className="relative group">
+                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
+                      <span>Kişi Sayısı: {selectedPersonCount}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                      {personCounts.map((count, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedPersonCount(count)}
+                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
+                            ${selectedPersonCount === count ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                        >
+                          {count}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Results Count & Clear Filters */}
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-secondary-dark/80">
+                    <span className="font-medium text-secondary-dark">{filteredItems.length}</span> eser
+                  </span>
+                  {(selectedCategory !== 'TÜMÜ' || selectedSize !== 'TÜMÜ' || selectedPersonCount !== 'TÜMÜ') && (
+                    <button
+                      onClick={() => {
+                        setSelectedCategory('TÜMÜ')
+                        setSelectedSize('TÜMÜ')
+                        setSelectedPersonCount('TÜMÜ')
+                      }}
+                      className="text-sm text-primary hover:text-primary-dark flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Filtreleri Temizle
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
 
           {/* Gallery Grid */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-          >
-            <AnimatePresence>
-              {filteredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card {...item} index={index} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div className="container mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              <AnimatePresence>
+                {filteredItems.map((artwork, index) => (
+                  <Card
+                    key={artwork._id}
+                    _id={artwork._id}
+                    title={artwork.title}
+                    category={artwork.category}
+                    imageUrl={artwork.imageUrl}
+                    description={artwork.description}
+                    size={artwork.size}
+                    teknik={artwork.teknik}
+                    personCount={artwork.personCount}
+                    index={index}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Card from '@/app/components/Card'
+import Card from '@/components/Card'
 import { motion, AnimatePresence } from 'framer-motion'
-import { portfolioItems, categories } from '@/data/portfolioData'
 import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { EffectCoverflow, Pagination, Navigation, Autoplay } from 'swiper/modules'
@@ -15,7 +14,10 @@ import 'swiper/css/navigation'
 export default function Portfolio() {
   const [isVisible, setIsVisible] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('TÜMÜ')
-  const [visibleItems, setVisibleItems] = useState(8)
+  const [artworks, setArtworks] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  const categories = ['TÜMÜ', 'Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi']
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -39,7 +41,24 @@ export default function Portfolio() {
     }
   }, [])
 
-  const filteredItems = portfolioItems.filter(
+  useEffect(() => {
+    fetchArtworks()
+  }, [])
+
+  const fetchArtworks = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/artworks')
+      const data = await response.json()
+      setArtworks(data)
+    } catch (error) {
+      console.error('Error fetching artworks:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const filteredItems = artworks.filter(
     item => selectedCategory === 'TÜMÜ' || item.category === selectedCategory
   )
 
@@ -107,6 +126,22 @@ export default function Portfolio() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <section className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </section>
+    )
+  }
+
+  if (artworks.length === 0) {
+    return (
+      <section className="min-h-screen flex items-center justify-center">
+        <p className="text-secondary-dark/80">Henüz eser eklenmemiş.</p>
+      </section>
+    )
+  }
+
   return (
     <section id="portfolio-section" className="relative min-h-screen">
       <div className="container mx-auto px-3 sm:px-4 py-16 sm:py-24">
@@ -153,10 +188,7 @@ export default function Portfolio() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              onClick={() => {
-                setSelectedCategory(category)
-                setVisibleItems(8)
-              }}
+              onClick={() => setSelectedCategory(category)}
               className={`relative text-xs sm:text-sm tracking-wider px-6 sm:px-10 py-3 sm:py-5 rounded-xl sm:rounded-2xl overflow-hidden
                 transition-all duration-500 transform hover:scale-105
                 ${selectedCategory === category 
@@ -257,19 +289,20 @@ export default function Portfolio() {
             >
               {filteredItems.map((item) => (
                 <SwiperSlide 
-                  key={item.id} 
+                  key={item._id} 
                   className="swiper-slide-custom"
                 >
                   <div className="p-2 sm:p-3 md:p-4">
                     <Card 
-                      id={item.id}
+                      _id={item._id}
                       title={item.title}
                       category={item.category}
                       imageUrl={item.imageUrl}
                       description={item.description}
-                      dimensions={item.dimensions}
-                      technique={item.technique}
-                      index={item.id}
+                      size={item.size}
+                      personCount={item.personCount}
+                      teknik={item.teknik}
+                      details={item.details}
                     />
                   </div>
                 </SwiperSlide>
