@@ -16,7 +16,8 @@ export default function AddArtworkPage() {
     teknik: 'Karakalem',
     imageUrl: '',
     description: '',
-    details: ''
+    details: '',
+    featured: false
   });
 
   const categories = ['Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi'];
@@ -236,6 +237,23 @@ export default function AddArtworkPage() {
                 className="w-full px-4 py-3 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all resize-none text-gray-600"
                 placeholder="Detaylar (opsiyonel)"
               />
+
+              <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-lg ring-1 ring-gray-200">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  name="featured"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    featured: e.target.checked
+                  }))}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <label htmlFor="featured" className="text-gray-600">
+                  Portfolyoda göster
+                </label>
+              </div>
             </div>
 
             {/* Submit Button */}

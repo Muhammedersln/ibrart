@@ -1,102 +1,76 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { toast } from 'react-hot-toast';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { toast } from 'react-hot-toast'
 import { 
-  HiOutlineTrash, 
-  HiOutlinePencil, 
   HiOutlineSearch, 
-  HiOutlinePlus,
-  HiOutlineStar,
-  HiStar,
+  HiOutlineStar, 
+  HiStar, 
   HiOutlineAdjustments,
   HiViewGrid,
-  HiViewList
-} from 'react-icons/hi';
-import { motion, AnimatePresence } from 'framer-motion';
+  HiViewList,
+  HiOutlinePencil,
+  HiOutlineTrash
+} from 'react-icons/hi'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 
-export default function ArtworksPage() {
-  const router = useRouter();
-  const [artworks, setArtworks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
-  const [isMobile, setIsMobile] = useState(false);
+export default function PortfolioPage() {
+  const router = useRouter()
+  const [artworks, setArtworks] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState('grid')
+  const [isMobile, setIsMobile] = useState(false)
   const [filters, setFilters] = useState({
     category: '',
     size: '',
     teknik: '',
-    featured: '',
-  });
-  const [sortBy, setSortBy] = useState('newest');
+  })
+  const [sortBy, setSortBy] = useState('newest')
 
-  const itemsPerPage = viewMode === 'grid' ? 9 : 8;
-  const categories = ['Tümü', 'Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi'];
-  const sizes = ['Tümü', '25x35', '35x50', '50x70'];
-  const teknikler = ['Tümü', 'Karakalem', 'Renkli', 'Yağlı'];
-  const featuredOptions = [
-    { value: '', label: 'Tümü' },
-    { value: 'true', label: 'Portfolyoda' },
-    { value: 'false', label: 'Portfolyoda Değil' }
-  ];
+  const itemsPerPage = viewMode === 'grid' ? 9 : 8
+  const categories = ['Tümü', 'Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi']
+  const sizes = ['Tümü', '25x35', '35x50', '50x70']
+  const teknikler = ['Tümü', 'Karakalem', 'Renkli', 'Yağlı']
 
   useEffect(() => {
-    fetchArtworks();
-  }, []);
+    fetchArtworks()
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 640)
       if (window.innerWidth < 640) {
-        setViewMode('list');
+        setViewMode('list')
       }
-    };
+    }
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const fetchArtworks = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/artworks');
-      const data = await response.json();
-      setArtworks(data);
-    } catch (error) {
-      toast.error('Eserler yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm('Bu eseri silmek istediğinizden emin misiniz?')) return;
-
-    try {
-      const response = await fetch(`/api/artworks/${id}`, {
-        method: 'DELETE',
-      });
-
+      setLoading(true)
+      const response = await fetch('/api/artworks?portfolio=true')
+      const data = await response.json()
+      
       if (!response.ok) {
-        throw new Error('Eser silinirken bir hata oluştu');
+        throw new Error(data.error || 'Eserler yüklenirken bir hata oluştu')
       }
-
-      toast.success('Eser başarıyla silindi');
-      fetchArtworks();
+      
+      setArtworks(data)
     } catch (error) {
-      toast.error('Eser silinirken bir hata oluştu');
+      toast.error('Eserler yüklenirken hata oluştu')
+    } finally {
+      setLoading(false)
     }
-  };
-
-  const handleEdit = (id) => {
-    router.push(`/admin/artworks/edit/${id}`);
-  };
+  }
 
   const handleToggleFeatured = async (id, currentFeatured) => {
     try {
@@ -106,93 +80,81 @@ export default function ArtworksPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ featured: !currentFeatured }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Portfolyo durumu güncellenirken bir hata oluştu');
+        throw new Error(data.error || 'Portfolyo durumu güncellenirken bir hata oluştu')
       }
 
-      toast.success(
-        !currentFeatured 
-          ? 'Eser portfolyoya eklendi' 
-          : 'Eser portfolyodan çıkarıldı'
-      );
-      fetchArtworks();
+      toast.success(!currentFeatured ? 'Eser portfolyodan çıkarıldı' : 'Eser portfolyoya eklendi')
+      fetchArtworks()
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
+
+  const handleEdit = (id) => {
+    router.push(`/admin/artworks/edit/${id}`)
+  }
 
   const filteredArtworks = artworks
     .filter(artwork => {
       const matchesSearch = artwork.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         artwork.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        artwork.teknik.toLowerCase().includes(searchTerm.toLowerCase());
+        artwork.teknik.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesCategory = !filters.category || filters.category === 'Tümü' || artwork.category === filters.category;
-      const matchesSize = !filters.size || filters.size === 'Tümü' || artwork.size === filters.size;
-      const matchesTeknik = !filters.teknik || filters.teknik === 'Tümü' || artwork.teknik === filters.teknik;
-      const matchesFeatured = !filters.featured || artwork.featured === (filters.featured === 'true');
+      const matchesCategory = !filters.category || filters.category === 'Tümü' || artwork.category === filters.category
+      const matchesSize = !filters.size || filters.size === 'Tümü' || artwork.size === filters.size
+      const matchesTeknik = !filters.teknik || filters.teknik === 'Tümü' || artwork.teknik === filters.teknik
 
-      return matchesSearch && matchesCategory && matchesSize && matchesTeknik && matchesFeatured;
+      return matchesSearch && matchesCategory && matchesSize && matchesTeknik
     })
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return new Date(b.createdAt) - new Date(a.createdAt);
+          return new Date(b.createdAt) - new Date(a.createdAt)
         case 'oldest':
-          return new Date(a.createdAt) - new Date(b.createdAt);
+          return new Date(a.createdAt) - new Date(b.createdAt)
         case 'title':
-          return a.title.localeCompare(b.title);
+          return a.title.localeCompare(b.title)
         default:
-          return 0;
+          return 0
       }
-    });
+    })
 
-  const totalPages = Math.ceil(filteredArtworks.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredArtworks.length / itemsPerPage)
   const currentArtworks = filteredArtworks.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  );
+  )
 
   const resetFilters = () => {
     setFilters({
       category: '',
       size: '',
       teknik: '',
-      featured: '',
-    });
-    setSearchTerm('');
-    setSortBy('newest');
-    setCurrentPage(1);
-  };
+    })
+    setSearchTerm('')
+    setSortBy('newest')
+    setCurrentPage(1)
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1 sm:mb-2">Eserler</h1>
-          <p className="text-sm sm:text-base text-gray-600">Toplam {filteredArtworks.length} eser bulundu</p>
-        </div>
-        
-        <Link 
-          href="/admin/add-artwork"
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-        >
-          <HiOutlinePlus className="w-5 h-5" />
-          Yeni Eser Ekle
-        </Link>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1 sm:mb-2">Portfolyo Yönetimi</h1>
+        <p className="text-sm sm:text-base text-gray-600">Portfolyoda {filteredArtworks.length} eser gösteriliyor</p>
       </div>
 
       {/* Search and Filters */}
@@ -274,7 +236,7 @@ export default function ArtworksPage() {
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 bg-white p-4 rounded-lg ring-1 ring-gray-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 bg-white p-4 rounded-lg ring-1 ring-gray-200">
                 <select
                   value={filters.category}
                   onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
@@ -308,20 +270,9 @@ export default function ArtworksPage() {
                   ))}
                 </select>
 
-                <select
-                  value={filters.featured}
-                  onChange={(e) => setFilters(prev => ({ ...prev, featured: e.target.value }))}
-                  className="h-12 px-4 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-600"
-                >
-                  <option value="">Portfolyo Durumu</option>
-                  {featuredOptions.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-
                 <button
                   onClick={resetFilters}
-                  className="h-12 px-4 rounded-lg text-gray-600 hover:text-primary hover:ring-primary ring-1 ring-gray-200 transition-all sm:col-span-2 lg:col-span-4"
+                  className="h-12 px-4 rounded-lg text-gray-600 hover:text-primary hover:ring-primary ring-1 ring-gray-200 transition-all sm:col-span-2 lg:col-span-3"
                 >
                   Filtreleri Temizle
                 </button>
@@ -367,29 +318,15 @@ export default function ArtworksPage() {
                     <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all">
                       <button
                         onClick={() => handleToggleFeatured(artwork._id, artwork.featured)}
-                        className={`w-8 h-8 rounded-full ${
-                          artwork.featured 
-                            ? 'bg-primary text-white' 
-                            : 'bg-white/90 text-gray-600'
-                        } flex items-center justify-center shadow-lg transition-all transform hover:scale-110`}
+                        className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg transition-all transform hover:scale-110"
                       >
-                        {artwork.featured ? (
-                          <HiStar className="w-4 h-4" />
-                        ) : (
-                          <HiOutlineStar className="w-4 h-4" />
-                        )}
+                        <HiStar className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleEdit(artwork._id)}
                         className="w-8 h-8 rounded-full bg-white/90 text-gray-600 hover:text-primary hover:bg-white transition-all flex items-center justify-center shadow-lg"
                       >
                         <HiOutlinePencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(artwork._id)}
-                        className="w-8 h-8 rounded-full bg-white/90 text-gray-600 hover:text-red-500 hover:bg-white transition-all flex items-center justify-center shadow-lg"
-                      >
-                        <HiOutlineTrash className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -435,29 +372,15 @@ export default function ArtworksPage() {
                     <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
                       <button
                         onClick={() => handleToggleFeatured(artwork._id, artwork.featured)}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${
-                          artwork.featured 
-                            ? 'bg-primary text-white' 
-                            : 'bg-gray-100 text-gray-600 hover:text-primary hover:bg-gray-50'
-                        } flex items-center justify-center transition-all`}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary text-white flex items-center justify-center transition-all"
                       >
-                        {artwork.featured ? (
-                          <HiStar className="w-4 h-4 sm:w-5 sm:h-5" />
-                        ) : (
-                          <HiOutlineStar className="w-4 h-4 sm:w-5 sm:h-5" />
-                        )}
+                        <HiStar className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                       <button
                         onClick={() => handleEdit(artwork._id)}
                         className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gray-100 text-gray-600 hover:text-primary hover:bg-gray-50 transition-all flex items-center justify-center"
                       >
                         <HiOutlinePencil className="w-4 h-4 sm:w-5 sm:h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(artwork._id)}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gray-100 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all flex items-center justify-center"
-                      >
-                        <HiOutlineTrash className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     </div>
                   </div>
@@ -504,10 +427,10 @@ export default function ArtworksPage() {
           <p className="text-sm sm:text-base text-gray-500">
             {searchTerm || Object.values(filters).some(Boolean)
               ? 'Arama kriterlerine uygun eser bulunamadı.'
-              : 'Henüz hiç eser eklenmemiş.'}
+              : 'Henüz portfolyoda eser bulunmuyor.'}
           </p>
         </div>
       )}
     </div>
-  );
+  )
 } 

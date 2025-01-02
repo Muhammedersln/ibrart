@@ -2,19 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Card from '../../components/Card'
+import Card from '@/components/Card'
+import { HiOutlineFilter, HiX, HiCheck, HiChevronDown, HiOutlineInformationCircle } from 'react-icons/hi'
 
 export default function GalleryPage() {
   const [selectedCategory, setSelectedCategory] = useState('TÜMÜ')
   const [selectedSize, setSelectedSize] = useState('TÜMÜ')
   const [selectedPersonCount, setSelectedPersonCount] = useState('TÜMÜ')
+  const [selectedTeknik, setSelectedTeknik] = useState('TÜMÜ')
   const [artworks, setArtworks] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const categories = ['TÜMÜ', 'Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi']
   const sizes = ['TÜMÜ', '25x35', '35x50', '50x70']
   const personCounts = ['TÜMÜ', 'Tekli', 'İkili', 'Üçlü', 'Dörtlü', 'Beşli', 'Altılı']
+  const teknikler = ['TÜMÜ', 'Karakalem', 'Renkli Kalem', 'Yağlı Boya', 'Kuru Boya', 'Karışık Teknik']
 
   useEffect(() => {
     fetchArtworks()
@@ -27,15 +31,29 @@ export default function GalleryPage() {
       setArtworks(data)
       setIsLoading(false)
     } catch (error) {
-      console.error('Error fetching artworks:', error)
       setIsLoading(false)
     }
   }
 
   const filteredItems = artworks
-    .filter(item => selectedCategory === 'TÜMÜ' || item.category === selectedCategory)
-    .filter(item => selectedSize === 'TÜMÜ' || item.size === selectedSize)
-    .filter(item => selectedPersonCount === 'TÜMÜ' || item.personCount === selectedPersonCount)
+    .filter(item => {
+      const matchesSearch = searchTerm === '' || 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesCategory = selectedCategory === 'TÜMÜ' || item.category === selectedCategory
+      const matchesSize = selectedSize === 'TÜMÜ' || item.size === selectedSize
+      const matchesPersonCount = selectedPersonCount === 'TÜMÜ' || item.personCount === selectedPersonCount
+      const matchesTeknik = selectedTeknik === 'TÜMÜ' || item.teknik === selectedTeknik
+      return matchesSearch && matchesCategory && matchesSize && matchesPersonCount && matchesTeknik
+    })
+
+  const resetFilters = () => {
+    setSelectedCategory('TÜMÜ')
+    setSelectedSize('TÜMÜ')
+    setSelectedPersonCount('TÜMÜ')
+    setSelectedTeknik('TÜMÜ')
+    setSearchTerm('')
+  }
 
   if (isLoading) {
     return (
@@ -59,7 +77,7 @@ export default function GalleryPage() {
 
       <div className="relative">
         <div className="max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
-          {/* Header */}
+          {/* Header - Unchanged */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -119,25 +137,28 @@ export default function GalleryPage() {
                 {/* Right side content */}
                 <div className="space-y-6">
                   <div className="bg-cream/30 rounded-2xl p-6 space-y-4">
-                    <h3 className="text-xl font-serif text-secondary-dark">Neden Portre?</h3>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="p-2 bg-primary/10 rounded-lg">
+                        <HiOutlineInformationCircle className="w-6 h-6 text-primary" />
+                      </span>
+                      <h3 className="text-xl font-serif text-secondary-dark">Önemli Bilgiler</h3>
+                    </div>
                     <ul className="space-y-3">
                       <li className="flex items-center gap-2 text-sm text-secondary-dark/80">
-                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Benzersiz ve kişiye özel sanat eseri
+                        <HiCheck className="w-5 h-5 text-primary" />
+                        Çizimler 1-2 hafta içerisinde tamamlanır
                       </li>
                       <li className="flex items-center gap-2 text-sm text-secondary-dark/80">
-                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Özel anılarınızı ölümsüzleştirin
+                        <HiCheck className="w-5 h-5 text-primary" />
+                        Kargo ücreti alıcıya aittir
                       </li>
                       <li className="flex items-center gap-2 text-sm text-secondary-dark/80">
-                        <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Mükemmel bir hediye seçeneği
+                        <HiCheck className="w-5 h-5 text-primary" />
+                        Çerçeve seçeneği mevcuttur
+                      </li>
+                      <li className="flex items-center gap-2 text-sm text-secondary-dark/80">
+                        <HiCheck className="w-5 h-5 text-primary" />
+                        Ödeme havale/EFT ile yapılır
                       </li>
                     </ul>
                     <a
@@ -160,127 +181,280 @@ export default function GalleryPage() {
           </motion.div>
 
           {/* Modern Filter Bar */}
-          <div className="sticky top-4 z-10 mb-8">
-            <motion.div 
+          <div className="mb-8">
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-lg p-4 max-w-7xl mx-auto"
+              className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg max-w-7xl mx-auto"
             >
-              <div className="flex flex-wrap gap-4 items-center justify-between">
-                {/* Filter Groups */}
-                <div className="flex flex-wrap gap-4 items-center flex-1">
-                  {/* Category Dropdown */}
-                  <div className="relative group">
-                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
-                      <span>Kategori: {selectedCategory}</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      {categories.map((category, index) => (
+              <div className="p-4 flex flex-wrap items-center gap-4">
+                {/* Search Input */}
+                <div className="flex-1 min-w-[200px]">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Eser ara..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-4 pr-10 h-12 rounded-xl bg-cream border-0 focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-dark/50 hover:text-secondary-dark"
+                      >
+                        <HiX className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                  </div>
+
+                {/* Category Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
+                    className="h-12 px-4 rounded-xl bg-cream hover:bg-cream-dark transition-all text-secondary-dark flex items-center gap-2"
+                  >
+                    <span>Kategori: {selectedCategory}</span>
+                    <HiChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === 'category' ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === 'category' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-cream-dark/10 py-2"
+                      >
+                      {categories.map((category) => (
                         <button
-                          key={index}
-                          onClick={() => setSelectedCategory(category)}
-                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
-                            ${selectedCategory === category ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                          key={category}
+                            onClick={() => {
+                              setSelectedCategory(category)
+                              setActiveDropdown(null)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-all ${
+                            selectedCategory === category
+                                ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-cream text-secondary-dark'
+                          }`}
                         >
                           {category}
                         </button>
                       ))}
-                    </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   </div>
 
-                  {/* Size Dropdown */}
-                  <div className="relative group">
-                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
-                      <span>Boyut: {selectedSize}</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      {sizes.map((size, index) => (
+                {/* Teknik Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setActiveDropdown(activeDropdown === 'teknik' ? null : 'teknik')}
+                    className="h-12 px-4 rounded-xl bg-cream hover:bg-cream-dark transition-all text-secondary-dark flex items-center gap-2"
+                  >
+                    <span>Teknik: {selectedTeknik}</span>
+                    <HiChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === 'teknik' ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === 'teknik' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-cream-dark/10 py-2"
+                      >
+                      {teknikler.map((teknik) => (
                         <button
-                          key={index}
-                          onClick={() => setSelectedSize(size)}
-                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
-                            ${selectedSize === size ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                          key={teknik}
+                            onClick={() => {
+                              setSelectedTeknik(teknik)
+                              setActiveDropdown(null)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-all ${
+                            selectedTeknik === teknik
+                                ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-cream text-secondary-dark'
+                          }`}
+                        >
+                          {teknik}
+                        </button>
+                      ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  </div>
+
+                {/* Size Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setActiveDropdown(activeDropdown === 'size' ? null : 'size')}
+                    className="h-12 px-4 rounded-xl bg-cream hover:bg-cream-dark transition-all text-secondary-dark flex items-center gap-2"
+                  >
+                    <span>Boyut: {selectedSize}</span>
+                    <HiChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === 'size' ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === 'size' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-cream-dark/10 py-2"
+                      >
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                            onClick={() => {
+                              setSelectedSize(size)
+                              setActiveDropdown(null)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-all ${
+                            selectedSize === size
+                                ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-cream text-secondary-dark'
+                          }`}
                         >
                           {size}
                         </button>
                       ))}
-                    </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   </div>
 
-                  {/* Person Count Dropdown */}
-                  <div className="relative group">
-                    <button className="px-4 py-2 rounded-xl bg-cream hover:bg-cream-dark transition-colors text-secondary-dark flex items-center gap-2">
-                      <span>Kişi Sayısı: {selectedPersonCount}</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      {personCounts.map((count, index) => (
+                {/* Person Count Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setActiveDropdown(activeDropdown === 'personCount' ? null : 'personCount')}
+                    className="h-12 px-4 rounded-xl bg-cream hover:bg-cream-dark transition-all text-secondary-dark flex items-center gap-2"
+                  >
+                    <span>Kişi Sayısı: {selectedPersonCount}</span>
+                    <HiChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === 'personCount' ? 'rotate-180' : ''}`} />
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === 'personCount' && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-cream-dark/10 py-2"
+                      >
+                      {personCounts.map((count) => (
                         <button
-                          key={index}
-                          onClick={() => setSelectedPersonCount(count)}
-                          className={`w-full text-left px-4 py-2 hover:bg-cream first:rounded-t-xl last:rounded-b-xl transition-colors
-                            ${selectedPersonCount === count ? 'bg-primary/10 text-primary' : 'text-secondary-dark'}`}
+                          key={count}
+                            onClick={() => {
+                              setSelectedPersonCount(count)
+                              setActiveDropdown(null)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-all ${
+                            selectedPersonCount === count
+                                ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-cream text-secondary-dark'
+                          }`}
                         >
                           {count}
                         </button>
                       ))}
-                    </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                   </div>
-                </div>
 
-                {/* Results Count & Clear Filters */}
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-secondary-dark/80">
-                    <span className="font-medium text-secondary-dark">{filteredItems.length}</span> eser
-                  </span>
-                  {(selectedCategory !== 'TÜMÜ' || selectedSize !== 'TÜMÜ' || selectedPersonCount !== 'TÜMÜ') && (
+                  {/* Reset Filters */}
+                  {(selectedCategory !== 'TÜMÜ' || selectedSize !== 'TÜMÜ' || 
+                    selectedPersonCount !== 'TÜMÜ' || selectedTeknik !== 'TÜMÜ' || searchTerm) && (
                     <button
-                      onClick={() => {
-                        setSelectedCategory('TÜMÜ')
-                        setSelectedSize('TÜMÜ')
-                        setSelectedPersonCount('TÜMÜ')
-                      }}
-                      className="text-sm text-primary hover:text-primary-dark flex items-center gap-1"
+                      onClick={resetFilters}
+                    className="h-12 px-4 rounded-xl bg-cream hover:bg-cream-dark transition-all text-secondary-dark flex items-center gap-2"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Filtreleri Temizle
+                    <HiX className="w-5 h-5" />
+                    <span className="hidden sm:inline">Filtreleri Temizle</span>
                     </button>
                   )}
                 </div>
+
+              {/* Active Filters */}
+              {(selectedCategory !== 'TÜMÜ' || selectedSize !== 'TÜMÜ' || 
+                selectedPersonCount !== 'TÜMÜ' || selectedTeknik !== 'TÜMÜ' || searchTerm) && (
+                <div className="px-4 pb-4 flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-secondary-dark/60">Aktif filtreler:</span>
+                  {selectedCategory !== 'TÜMÜ' && (
+                    <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-sm">
+                      {selectedCategory}
+                    </span>
+                  )}
+                  {selectedTeknik !== 'TÜMÜ' && (
+                    <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-sm">
+                      {selectedTeknik}
+                    </span>
+                  )}
+                  {selectedSize !== 'TÜMÜ' && (
+                    <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-sm">
+                      {selectedSize}
+                    </span>
+                  )}
+                  {selectedPersonCount !== 'TÜMÜ' && (
+                    <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-sm">
+                      {selectedPersonCount}
+                    </span>
+                  )}
+                  {searchTerm && (
+                    <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-sm">
+                      &ldquo;{searchTerm}&rdquo;
+                    </span>
+                  )}
+                  <span className="text-sm text-secondary-dark/60 ml-auto">
+                    {filteredItems.length} eser bulundu
+                  </span>
               </div>
+              )}
             </motion.div>
           </div>
 
-          {/* Gallery Grid */}
-          <div className="container mx-auto px-4 py-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              <AnimatePresence>
-                {filteredItems.map((artwork, index) => (
-                  <Card
-                    key={artwork._id}
-                    _id={artwork._id}
-                    title={artwork.title}
-                    category={artwork.category}
-                    imageUrl={artwork.imageUrl}
-                    description={artwork.description}
-                    size={artwork.size}
-                    teknik={artwork.teknik}
-                    personCount={artwork.personCount}
-                    index={index}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
+            {/* Gallery Grid */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {filteredItems.length > 0 ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max"
+                >
+                  <AnimatePresence>
+                    {filteredItems.map((artwork, index) => (
+                      <motion.div
+                        key={artwork._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="group"
+                      >
+                        <Card
+                          _id={artwork._id}
+                          title={artwork.title}
+                          category={artwork.category}
+                          imageUrl={artwork.imageUrl}
+                          description={artwork.description}
+                          size={artwork.size}
+                          teknik={artwork.teknik}
+                          personCount={artwork.personCount}
+                          index={index}
+                        />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-lg text-secondary-dark/80">
+                    {searchTerm || selectedCategory !== 'TÜMÜ' || selectedSize !== 'TÜMÜ' || 
+                     selectedPersonCount !== 'TÜMÜ' || selectedTeknik !== 'TÜMÜ'
+                      ? 'Arama kriterlerine uygun eser bulunamadı.'
+                      : 'Henüz eser eklenmemiş.'}
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       </div>

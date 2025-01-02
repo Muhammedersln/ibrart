@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FaInstagram, FaTiktok, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaChevronDown } from 'react-icons/fa'
 
 export default function ContactPage() {
@@ -82,17 +82,15 @@ export default function ContactPage() {
             </p>
           </motion.div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Left Column - Contact Info & Social */}
+          {/* Top Section - Contact Info & Social */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12">
+            {/* Quick Contact Card */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8"
             >
-              {/* Quick Contact Card */}
-              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10 h-full">
                 <h2 className="text-2xl font-serif text-secondary-dark mb-6">Hızlı İletişim</h2>
                 <div className="space-y-6">
                   <div className="flex items-center gap-4">
@@ -124,9 +122,15 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+            </motion.div>
 
-              {/* Social Media Showcase */}
-              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+            {/* Social Media Showcase */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10 h-full">
                 <h2 className="text-2xl font-serif text-secondary-dark mb-6">Sosyal Medya</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {socialLinks.map((link, index) => (
@@ -165,71 +169,62 @@ export default function ContactPage() {
                 </a>
               </div>
             </motion.div>
+          </div>
 
-            {/* Right Column - FAQ & Working Hours */}
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="space-y-8"
-            >
-              {/* FAQ Section */}
-              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
-                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Sıkça Sorulan Sorular</h2>
-                <div className="space-y-4">
-                  {faqItems.map((item, index) => (
-                    <div key={index} className="border-b border-cream-dark/10 last:border-0">
-                      <button
-                        onClick={() => toggleFaq(index)}
-                        className="w-full flex items-center justify-between py-4 text-left"
-                      >
-                        <span className="font-medium text-secondary-dark">{item.question}</span>
-                        <FaChevronDown
-                          className={`w-5 h-5 text-primary transition-transform duration-300
-                            ${openFaqIndex === index ? 'transform rotate-180' : ''}`}
-                        />
-                      </button>
+          {/* FAQ Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="max-w-3xl mx-auto"
+          >
+            <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
+              <h2 className="text-2xl font-serif text-secondary-dark text-center mb-8">Sıkça Sorulan Sorular</h2>
+              <div className="space-y-4">
+                {faqItems.map((item, index) => (
+                  <div key={index} className="border border-cream-dark/10 rounded-xl overflow-hidden">
+                    <button
+                      onClick={() => toggleFaq(index)}
+                      className="w-full flex items-center justify-between p-4 text-left bg-cream/20 hover:bg-cream/30 transition-colors"
+                    >
+                      <span className="font-medium text-secondary-dark">{item.question}</span>
+                      <FaChevronDown
+                        className={`w-5 h-5 text-primary transition-transform duration-500
+                          ${openFaqIndex === index ? 'transform rotate-180' : ''}`}
+                      />
+                    </button>
+                    <AnimatePresence>
                       {openFaqIndex === index && (
                         <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="pb-4 text-secondary-dark/70"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ 
+                            height: 'auto', 
+                            opacity: 1,
+                            transition: {
+                              height: { duration: 0.4, ease: 'easeOut' },
+                              opacity: { duration: 0.3, delay: 0.1 }
+                            }
+                          }}
+                          exit={{ 
+                            height: 0, 
+                            opacity: 0,
+                            transition: {
+                              height: { duration: 0.4, ease: 'easeIn' },
+                              opacity: { duration: 0.3 }
+                            }
+                          }}
                         >
-                          {item.answer}
+                          <div className="p-4 text-secondary-dark/70 bg-cream/10">
+                            {item.answer}
+                          </div>
                         </motion.div>
                       )}
-                    </div>
-                  ))}
-                </div>
+                    </AnimatePresence>
+                  </div>
+                ))}
               </div>
-
-              {/* Working Hours */}
-              <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-cream-dark/10">
-                <h2 className="text-2xl font-serif text-secondary-dark mb-6">Çalışma Saatleri</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-secondary-dark">Pazartesi - Cuma</span>
-                    <span className="text-primary font-medium">09:00 - 18:00</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-secondary-dark">Cumartesi</span>
-                    <span className="text-primary font-medium">10:00 - 16:00</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-secondary-dark">Pazar</span>
-                    <span className="text-secondary-dark/70">Kapalı</span>
-                  </div>
-                  <div className="mt-6 p-4 bg-cream/30 rounded-xl">
-                    <p className="text-sm text-secondary-dark/70">
-                      * Randevu sistemiyle çalışmaktayız. Ziyaret öncesi lütfen iletişime geçiniz.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </main>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
-import { HiOutlinePhotograph, HiOutlinePlus, HiOutlineHome, HiOutlineMenu, HiOutlineX, HiOutlineLogout } from 'react-icons/hi';
+import { HiOutlinePhotograph, HiOutlinePlus, HiOutlineHome, HiOutlineMenu, HiOutlineX, HiOutlineLogout, HiOutlineStar, HiOutlineShoppingCart } from 'react-icons/hi';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -30,14 +30,19 @@ export default function AdminSidebar() {
       icon: HiOutlineHome
     },
     {
-      title: 'Eser Ekle',
-      href: '/admin/add-artwork',
-      icon: HiOutlinePlus
-    },
-    {
-      title: 'Mevcut Eserler',
+      title: 'Eserler',
       href: '/admin/artworks',
       icon: HiOutlinePhotograph
+    },
+    {
+      title: 'Portfolyo',
+      href: '/admin/portfolio',
+      icon: HiOutlineStar
+    },
+    {
+      title: 'Ürünler',
+      href: '/admin/products',
+      icon: HiOutlineShoppingCart
     }
   ];
 

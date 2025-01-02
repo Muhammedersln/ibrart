@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Artwork from '@/models/Artwork';
+import Settings from '@/models/Settings';
 import cloudinary from '@/lib/cloudinary';
 
 export async function POST(request) {
@@ -10,7 +11,13 @@ export async function POST(request) {
     
     console.log('Received artwork data:', data);
 
-    const artwork = new Artwork(data);
+    // Ensure featured field is set
+    const artworkData = {
+      ...data,
+      featured: data.featured !== undefined ? data.featured : false
+    };
+
+    const artwork = new Artwork(artworkData);
     const validationError = artwork.validateSync();
     
     if (validationError) {
@@ -39,6 +46,7 @@ export async function GET(request) {
     await dbConnect();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const isPortfolio = searchParams.get('portfolio') === 'true';
 
     if (id) {
       const artwork = await Artwork.findById(id);
@@ -51,6 +59,21 @@ export async function GET(request) {
       return NextResponse.json(artwork);
     }
 
+    if (isPortfolio) {
+      // Get settings for portfolio limit
+      const settings = await Settings.getInstance();
+      console.log('Portfolio settings:', settings);
+      
+      const artworks = await Artwork.find({ featured: true })
+        .sort({ createdAt: -1 })
+        .limit(settings.portfolioLimit)
+        .lean();
+      
+      console.log('Found portfolio artworks:', artworks);
+      return NextResponse.json(artworks);
+    }
+
+    // Normal artwork listing for admin panel
     const artworks = await Artwork.find({}).sort({ createdAt: -1 });
     return NextResponse.json(artworks);
   } catch (error) {
@@ -125,6 +148,8 @@ export async function PUT(request) {
       );
     }
 
+    console.log('Updating artwork:', { id, data });
+
     const artwork = await Artwork.findById(id);
     if (!artwork) {
       return NextResponse.json(
@@ -134,7 +159,7 @@ export async function PUT(request) {
     }
 
     // If image URL has changed, delete the old image from Cloudinary
-    if (artwork.imageUrl && artwork.imageUrl !== data.imageUrl) {
+    if (artwork.imageUrl && data.imageUrl && artwork.imageUrl !== data.imageUrl) {
       const urlParts = artwork.imageUrl.split('/');
       const publicIdWithExtension = urlParts.slice(-2).join('/');
       const publicId = publicIdWithExtension.split('.')[0];
@@ -147,13 +172,20 @@ export async function PUT(request) {
       }
     }
 
+    // Ensure featured field is included in the update
+    const updateData = {
+      ...data,
+      featured: data.featured !== undefined ? data.featured : artwork.featured
+    };
+
     // Update the artwork
     const updatedArtwork = await Artwork.findByIdAndUpdate(
       id,
-      data,
+      updateData,
       { new: true, runValidators: true }
     );
 
+    console.log('Updated artwork:', updatedArtwork);
     return NextResponse.json(updatedArtwork);
   } catch (error) {
     console.error('Error updating artwork:', error);

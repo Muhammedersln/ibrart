@@ -1,300 +1,357 @@
 'use client';
 
-import { useState, useEffect, use, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { HiOutlineUpload, HiOutlineSave, HiOutlineX } from 'react-icons/hi';
+import { toast } from 'react-hot-toast';
+import { HiOutlineUpload, HiOutlinePhotograph, HiOutlineX } from 'react-icons/hi';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function EditArtworkPage({ params }) {
-  const id = use(Promise.resolve(params.id));
+export default function EditArtworkPage() {
   const router = useRouter();
-  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [artwork, setArtwork] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Aile',
-    size: '25x35',
-    personCount: 'Tekli',
-    teknik: 'Karakalem',
+    category: '',
+    size: '',
+    personCount: '',
+    teknik: '',
     imageUrl: '',
     description: '',
-    details: ''
+    details: '',
+    featured: false,
   });
+  const [previewImage, setPreviewImage] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   const categories = ['Aile', 'Çift', 'Tek Portre', 'Karışık', 'Birleştirme Çizim', 'Duvar Resmi'];
   const sizes = ['25x35', '35x50', '50x70'];
   const teknikler = ['Karakalem', 'Renkli', 'Yağlı'];
+
+  useEffect(() => {
+    const fetchArtwork = async () => {
+      try {
+        const id = window.location.pathname.split('/').pop();
+        const response = await fetch(`/api/artworks/${id}`);
+        const data = await response.json();
   
-  const personCountOptions = useMemo(() => ({
-    '25x35': ['Tekli'],
-    '35x50': ['Tekli', 'İkili', 'Üçlü'],
-    '50x70': ['Tekli', 'İkili', 'Üçlü', 'Dörtlü', 'Beşli', 'Altılı']
-  }), []);
-
-  const fetchArtwork = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/artworks?id=${id}`);
-      const data = await response.json();
-      setFormData(data);
-    } catch (error) {
-      console.error('Error fetching artwork:', error);
-      alert('Eser bilgileri yüklenirken bir hata oluştu');
-    } finally {
-      setLoading(false);
-    }
-  }, [id, setFormData, setLoading]);
-
-  useEffect(() => {
-    fetchArtwork();
-  }, [fetchArtwork]);
-
-  useEffect(() => {
-    // Boyut değiştiğinde, eğer mevcut kişi sayısı yeni boyut için geçerli değilse
-    // kişi sayısını o boyut için geçerli ilk değere ayarla
-    if (!personCountOptions[formData.size].includes(formData.personCount)) {
-      setFormData(prev => ({
-        ...prev,
-        personCount: personCountOptions[formData.size][0]
-      }));
-    }
-  }, [formData.size, formData.personCount, personCountOptions]);
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (data.secure_url) {
-        setFormData(prev => ({
-          ...prev,
-          imageUrl: data.secure_url
-        }));
+        if (!response.ok) {
+          throw new Error(data.error || 'Eser yüklenirken bir hata oluştu');
+        }
+  
+        setArtwork(data);
+        setFormData({
+          title: data.title,
+          category: data.category,
+          size: data.size,
+          personCount: data.personCount,
+          teknik: data.teknik,
+          imageUrl: data.imageUrl,
+          description: data.description,
+          details: data.details,
+          featured: data.featured,
+        });
+        setPreviewImage(data.imageUrl);
+      } catch (error) {
+        toast.error('Eser yüklenirken bir hata oluştu');
+        router.push('/admin/artworks');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      alert('Resim yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
-    } finally {
-      setUploading(false);
+    };
+
+    fetchArtwork();
+  }, [router]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.imageUrl) {
-      alert('Lütfen bir resim yükleyin');
-      return;
-    }
+    setSaving(true);
 
     try {
-      const response = await fetch(`/api/artworks?id=${id}`, {
+      let imageUrl = formData.imageUrl;
+
+      // Upload new image if selected
+      if (imageFile) {
+        const imageFormData = new FormData();
+        imageFormData.append('file', imageFile);
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Resim yüklenirken bir hata oluştu');
+        }
+
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.url;
+      }
+
+      // Update artwork
+      const id = window.location.pathname.split('/').pop();
+      const response = await fetch(`/api/artworks/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          imageUrl,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update artwork');
+        throw new Error(data.error || 'Eser güncellenirken bir hata oluştu');
       }
 
-      alert('Eser başarıyla güncellendi!');
+      toast.success('Eser başarıyla güncellendi');
       router.push('/admin/artworks');
     } catch (error) {
-      console.error('Error updating artwork:', error);
-      alert('Hata: ' + error.message);
+      toast.error(error.message);
+    } finally {
+      setSaving(false);
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const removeImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      imageUrl: ''
-    }));
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-full">
-      <div className="max-w-5xl mx-auto">
-        <div className="grid lg:grid-cols-[1fr,400px] gap-6 lg:gap-8">
-          {/* Image Upload Section */}
-          <div className="bg-white rounded-lg p-4 lg:p-6 h-fit order-1 lg:order-none">
-            <div className="relative">
-              {formData.imageUrl ? (
-                <div className="relative">
-                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                    <Image
-                      src={formData.imageUrl}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <button
-                    onClick={removeImage}
-                    className="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-white transition-all shadow-lg"
-                  >
-                    <HiOutlineX className="w-6 h-6" />
-                  </button>
-                </div>
-              ) : (
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    required
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-1 sm:mb-2">Eser Düzenle</h1>
+        <p className="text-sm sm:text-base text-gray-600">Eser bilgilerini güncelleyebilirsiniz</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+        {/* Image Upload */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg ring-1 ring-gray-200">
+          <h2 className="text-lg font-medium text-gray-800 mb-4">Eser Görseli</h2>
+          <div className="flex flex-col sm:flex-row gap-6">
+            <div className="relative aspect-[4/3] w-full sm:w-96 bg-gray-100 rounded-lg overflow-hidden">
+              {previewImage ? (
+                <>
+                  <Image
+                    src={previewImage}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
                   />
-                  <div className="aspect-[4/3] rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 hover:text-primary hover:border-primary transition-colors">
-                    <HiOutlineUpload className="w-10 h-10 lg:w-12 lg:h-12 mb-3" />
-                    <span className="text-sm font-medium text-center px-4">Resim yüklemek için tıklayın</span>
-                    <span className="text-xs mt-1 hidden sm:block">veya sürükleyip bırakın</span>
-                  </div>
-                </div>
-              )}
-              
-              {uploading && (
-                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
-                  <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent"></div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewImage('');
+                      setImageFile(null);
+                    }}
+                    className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
+                  >
+                    <HiOutlineX className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                  <HiOutlinePhotograph className="w-12 h-12 mb-2" />
+                  <span className="text-sm">Görsel Yok</span>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
-            {/* Title */}
+            <div className="flex-1 flex flex-col justify-center">
+              <label className="w-full sm:w-auto">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="h-12 px-6 flex items-center justify-center gap-2 bg-white text-gray-600 hover:text-primary ring-1 ring-gray-200 hover:ring-primary rounded-lg cursor-pointer transition-all">
+                  <HiOutlineUpload className="w-5 h-5" />
+                  <span>Yeni Görsel Seç</span>
+                </div>
+              </label>
+              <p className="mt-2 text-sm text-gray-500">
+                PNG, JPG veya JPEG. Maksimum 5MB.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Basic Info */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg ring-1 ring-gray-200">
+          <h2 className="text-lg font-medium text-gray-800 mb-4">Temel Bilgiler</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Başlık
+              </label>
               <input
                 type="text"
-                name="title"
                 value={formData.title}
-                onChange={handleChange}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
                 required
-                className="w-full px-4 h-12 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-800 font-medium"
-                placeholder="Eser başlığı"
               />
             </div>
 
-            {/* Category & Size */}
-            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kategori
+              </label>
               <select
-                name="category"
                 value={formData.category}
-                onChange={handleChange}
+                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
                 required
-                className="h-12 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-600"
               >
+                <option value="">Seçiniz</option>
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Boyut
+              </label>
               <select
-                name="size"
                 value={formData.size}
-                onChange={handleChange}
+                onChange={(e) => setFormData(prev => ({ ...prev, size: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
                 required
-                className="h-12 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-600"
               >
+                <option value="">Seçiniz</option>
                 {sizes.map(size => (
                   <option key={size} value={size}>{size}</option>
                 ))}
               </select>
             </div>
 
-            {/* Person Count & Technique */}
-            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Teknik
+              </label>
               <select
-                name="personCount"
-                value={formData.personCount}
-                onChange={handleChange}
-                required
-                className="h-12 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-600"
-              >
-                {personCountOptions[formData.size].map(count => (
-                  <option key={count} value={count}>{count}</option>
-                ))}
-              </select>
-
-              <select
-                name="teknik"
                 value={formData.teknik}
-                onChange={handleChange}
+                onChange={(e) => setFormData(prev => ({ ...prev, teknik: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
                 required
-                className="h-12 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all text-gray-600"
               >
+                <option value="">Seçiniz</option>
                 {teknikler.map(teknik => (
                   <option key={teknik} value={teknik}>{teknik}</option>
                 ))}
               </select>
             </div>
 
-            {/* Description */}
             <div>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={3}
-                className="w-full px-4 py-3 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
-                placeholder="Eser açıklaması"
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kişi Sayısı
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={formData.personCount}
+                onChange={(e) => setFormData(prev => ({ ...prev, personCount: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
+                required
               />
             </div>
 
-            {/* Details */}
-            <div>
-              <textarea
-                name="details"
-                value={formData.details}
-                onChange={handleChange}
-                rows={3}
-                className="w-full px-4 py-3 rounded-lg border-0 bg-white ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
-                placeholder="Eser detayları"
-              />
+            <div className="flex items-center">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                <span className="ml-3 text-sm font-medium text-gray-700">Portfolyoda Göster</span>
+              </label>
             </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full h-12 bg-primary text-white rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
-            >
-              <HiOutlineSave className="w-5 h-5" />
-              <span>Güncelle</span>
-            </button>
-          </form>
+          </div>
         </div>
-      </div>
+
+        {/* Description */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg ring-1 ring-gray-200">
+          <h2 className="text-lg font-medium text-gray-800 mb-4">Açıklamalar</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Kısa Açıklama
+              </label>
+              <input
+                type="text"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                className="w-full h-12 px-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Detaylı Açıklama
+              </label>
+              <textarea
+                value={formData.details}
+                onChange={(e) => setFormData(prev => ({ ...prev, details: e.target.value }))}
+                rows={4}
+                className="w-full p-4 rounded-lg border-0 bg-gray-50 ring-1 ring-gray-200 focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full sm:w-auto px-6 h-12 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {saving ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <span>Kaydediliyor...</span>
+              </>
+            ) : (
+              'Değişiklikleri Kaydet'
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push('/admin/artworks')}
+            className="w-full sm:w-auto px-6 h-12 bg-white text-gray-600 hover:text-primary ring-1 ring-gray-200 hover:ring-primary rounded-lg transition-all flex items-center justify-center"
+          >
+            İptal
+          </button>
+        </div>
+      </form>
     </div>
   );
 } 

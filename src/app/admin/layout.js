@@ -14,6 +14,8 @@ export default function AdminLayout({ children }) {
         return 'Yeni Eser Ekle';
       case '/admin/artworks':
         return 'Mevcut Eserler';
+      case '/admin/products':
+        return 'Ürün Yönetimi';
       default:
         return 'Yönetim Paneli';
     }

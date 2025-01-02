@@ -3,7 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FaBars, FaTimes } from 'react-icons/fa'
+import Logo from './Logo'
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -28,7 +30,7 @@ export default function Navbar() {
     { href: '/about', label: 'HAKKIMDA' },
     { href: '/gallery', label: 'GALERİ' },
     { href: '/contact', label: 'İLETİŞİM' },
-    { href: '/workshop', label: 'ATÖLYE' },
+    { href: '/order', label: 'SİPARİŞ', isOrder: true },
   ]
 
   return (
@@ -38,51 +40,40 @@ export default function Navbar() {
       transition={{ duration: 0.5 }}
       className={`fixed w-full z-50 transition-all duration-500
         ${isScrolled 
-          ? 'bg-white/90 backdrop-blur-md shadow-lg border-b border-cream-dark/10'
+          ? 'bg-white/95 backdrop-blur-md shadow-lg'
           : 'bg-transparent'}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link href="/">
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="font-serif text-2xl tracking-wide relative overflow-hidden"
-            >
-              <motion.span 
-                className="bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent
-                bg-[length:200%_100%] font-bold"
-                animate={{ backgroundPosition: ['0%', '200%'] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-              >
-                İBRAHİM
-              </motion.span>
-            </motion.div>
+            <Logo />
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-1">
             {menuItems.map((item) => (
               <Link key={item.href} href={item.href}>
                 <motion.div
-                  className="relative"
+                  className="relative px-4 py-2"
                   onHoverStart={() => setActiveItem(item.href)}
                   whileHover={{ y: -2 }}
                 >
-                  <span className="text-sm text-secondary-dark hover:text-primary tracking-widest 
-                    transition-all duration-300 font-medium">
+                  <span className={`text-sm tracking-widest transition-all duration-300 font-medium
+                    ${item.isOrder 
+                      ? 'text-primary hover:text-secondary-dark' 
+                      : 'text-secondary-dark hover:text-primary'}`}
+                  >
                     {item.label}
                   </span>
-                  <motion.div
-                    className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary"
-                    initial={{ scaleX: 0 }}
-                    animate={{ 
-                      scaleX: activeItem === item.href ? 1 : 0,
-                      opacity: activeItem === item.href ? 1 : 0
-                    }}
-                    transition={{ duration: 0.2 }}
-                  />
+                  {activeItem === item.href && (
+                    <motion.div
+                      layoutId="navbar-underline"
+                      className={`absolute bottom-0 left-0 right-0 h-0.5 mx-4
+                        ${item.isOrder ? 'bg-primary' : 'bg-secondary'}`}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                 </motion.div>
               </Link>
             ))}
@@ -91,62 +82,65 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            className="md:hidden"
+            className="md:hidden text-secondary-dark hover:text-primary transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <div className="relative w-6 h-6">
-              <motion.span 
-                animate={{ 
-                  rotate: isMenuOpen ? 45 : 0,
-                  y: isMenuOpen ? 10 : 0
-                }}
-                className="absolute h-0.5 w-full bg-secondary transform transition-all duration-300 top-0"
-              />
-              <motion.span 
-                animate={{ 
-                  opacity: isMenuOpen ? 0 : 1
-                }}
-                className="absolute h-0.5 w-full bg-primary top-[10px] transition-all duration-300"
-              />
-              <motion.span 
-                animate={{ 
-                  rotate: isMenuOpen ? -45 : 0,
-                  y: isMenuOpen ? -10 : 0
-                }}
-                className="absolute h-0.5 w-full bg-secondary transform transition-all duration-300 bottom-0"
-              />
-            </div>
+            {isMenuOpen ? (
+              <FaTimes className="w-6 h-6" />
+            ) : (
+              <FaBars className="w-6 h-6" />
+            )}
           </motion.button>
         </div>
 
         {/* Mobile Menu */}
-        <motion.div 
-          initial={false}
-          animate={{ 
-            height: isMenuOpen ? 'auto' : 0,
-            opacity: isMenuOpen ? 1 : 0
-          }}
-          className="md:hidden overflow-hidden bg-white/95 backdrop-blur-md"
-        >
-          <div className="py-4 space-y-2">
-            {menuItems.map((item) => (
-              <motion.div
-                key={item.href}
-                whileHover={{ x: 10 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Link
-                  href={item.href}
-                  className="block px-4 py-2 text-sm text-secondary-dark hover:text-primary 
-                    tracking-widest transition-all duration-300 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden overflow-hidden bg-white/95 backdrop-blur-md rounded-b-2xl shadow-lg"
+            >
+              <div className="p-4 space-y-1">
+                {menuItems.map((item) => (
+                  <motion.div
+                    key={item.href}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -20, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <motion.div
+                        className={`block px-4 py-3 rounded-xl transition-all duration-300
+                          ${activeItem === item.href 
+                            ? 'bg-cream text-primary' 
+                            : 'hover:bg-cream/50'}`}
+                        whileHover={{ x: 10 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <span className={`text-sm tracking-widest font-medium
+                          ${item.isOrder 
+                            ? 'text-primary' 
+                            : activeItem === item.href 
+                              ? 'text-primary'
+                              : 'text-secondary-dark'}`}
+                        >
+                          {item.label}
+                        </span>
+                      </motion.div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   )

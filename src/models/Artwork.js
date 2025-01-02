@@ -49,6 +49,11 @@ const ArtworkSchema = new mongoose.Schema({
   details: {
     type: String,
   },
+  featured: {
+    type: Boolean,
+    default: false,
+    required: true
+  },
 }, {
   timestamps: true,
 });
